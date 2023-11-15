@@ -9,31 +9,32 @@ import { Link } from "react-router-dom";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import { FormLabel } from "@material-ui/core";
 
 export default class CreateRoomPage extends Component {
   defaultVotes = 2;
+
   constructor(props) {
     super(props);
     this.state = {
       guestCanPause: true,
-      voteToSkip: this.defaultVotes,
+      votesToSkip: this.defaultVotes,
     };
+
     this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
     this.handleVotesChange = this.handleVotesChange.bind(this);
-    this.handle_guestCanPauseChange =
-      this.handle_guestCanPauseChange.bind(this);
+    this.handleGuestCanPauseChange = this.handleGuestCanPauseChange.bind(this);
   }
+
   handleVotesChange(e) {
     this.setState({
-      voteToSkip: e.target.value,
+      votesToSkip: e.target.value,
     });
   }
 
-  handle_guestCanPauseChange(e) {
-    this.setState = {
+  handleGuestCanPauseChange(e) {
+    this.setState({
       guestCanPause: e.target.value === "true" ? true : false,
-    };
+    });
   }
 
   handleRoomButtonPressed() {
@@ -41,24 +42,24 @@ export default class CreateRoomPage extends Component {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        votes_to_skip: this.state.votesToSkip,
         guest_can_pause: this.state.guestCanPause,
-        vote_to_skip: this.state.voteToSkip,
       }),
     };
-    fetch("api/create-room", requestOptions)
+    fetch("/api/create-room", requestOptions)
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => this.props.history.push("/room/" + data.code));
   }
 
   render() {
     return (
       <Grid container spacing={1}>
-        <Grid items xs={12} align="center">
+        <Grid item xs={12} align="center">
           <Typography component="h4" variant="h4">
             Create A Room
           </Typography>
         </Grid>
-        <Grid items xs={12} align="center">
+        <Grid item xs={12} align="center">
           <FormControl component="fieldset">
             <FormHelperText>
               <div align="center">Guest Control of Playback State</div>
@@ -66,7 +67,7 @@ export default class CreateRoomPage extends Component {
             <RadioGroup
               row
               defaultValue="true"
-              onChange={this.handle_guestCanPauseChange}
+              onChange={this.handleGuestCanPauseChange}
             >
               <FormControlLabel
                 value="true"
@@ -88,12 +89,15 @@ export default class CreateRoomPage extends Component {
             <TextField
               required={true}
               type="number"
-              defaultValue={this.defaultVotes}
-              inputProps={{ min: 1, style: { textAlign: "center" } }} // input props accepts objects only. Hence {{......}}
               onChange={this.handleVotesChange}
+              defaultValue={this.defaultVotes}
+              inputProps={{
+                min: 1,
+                style: { textAlign: "center" },
+              }}
             />
             <FormHelperText>
-              <div align="center">Vote Required To Skip Song</div>
+              <div align="center">Votes Required To Skip Song</div>
             </FormHelperText>
           </FormControl>
         </Grid>
